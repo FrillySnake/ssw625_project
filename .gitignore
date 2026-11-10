@@ -1,8 +1,4 @@
-/03_near_dupe2.py
-/agent_skills_release.db
-/agent_skills_release.db-shm
-/agent_skills_release.db-wal
-/agent_skills_sample.db
-/agent_skills_sample.db-journal
+/agent_skills_release*
+/agent_skills_sample*
 /pairs.csv
 /__pycache__
