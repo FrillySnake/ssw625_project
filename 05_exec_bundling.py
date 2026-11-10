@@ -1,5 +1,5 @@
 import sqlite3
-conn = sqlite3.connect("agent_skills_release.db")
+conn = sqlite3.connect("agent_skills_sample.db")
 
 total = conn.execute("SELECT COUNT(*) FROM artifacts WHERE dedup_primary = 1 AND content_fetched = 1").fetchone()[0]
 with_execs = conn.execute("""

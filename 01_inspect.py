@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect("agent_skills_release.db")
+conn = sqlite3.connect("agent_skills_sample.db")
 print("connected")
 
 tables = conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")

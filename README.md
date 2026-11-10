@@ -1,4 +1,4 @@
-# Phase 2: Hidden Divergence in Reused Agent Skills
+# SSW 625 Project: Hidden Divergence in Reused Agent Skills
 
 Scripts that measure how often copied agent skills contain hidden divergence, using the GitSkills sample dataset (13,000 distinct skill contents).
 

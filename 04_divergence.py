@@ -32,7 +32,7 @@ def new_tokens(old_text, new_text, tokens):
 
     return new_found - old_found
 
-conn = sqlite3.connect("agent_skills_release.db")
+conn = sqlite3.connect("agent_skills_sample.db")
 rows = conn.execute("""
     SELECT file_sha, content FROM artifacts
     WHERE content_fetched = 1 AND content IS NOT NULL

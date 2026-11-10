@@ -4,7 +4,7 @@ from datasketch import MinHash
 from datasketch import MinHashLSH
 import csv
 
-conn = sqlite3.connect("agent_skills_release.db")
+conn = sqlite3.connect("agent_skills_sample.db")
 rows = conn.execute("""
     SELECT file_sha, content FROM artifacts
     WHERE content_fetched = 1 AND content IS NOT NULL
