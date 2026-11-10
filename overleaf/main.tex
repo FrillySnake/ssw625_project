@@ -65,10 +65,8 @@
 
 %% These commands are for a PROCEEDINGS abstract or paper.
 %\acmConference[Woodstock '18]{Woodstock '18: ACM Symposium on Neural Gaze Detection}{June 03--05, 2018}{Woodstock, NY}
-  \acmConference[MSR 2022]{MSR '22: Proceedings of the 19th International Conference on Mining Software Repositories}{May 23–24, 2022}{Pittsburgh, PA, USA}
-\acmBooktitle{MSR '22: Proceedings of the 19th International Conference on Mining Software Repositories, May 23–24, 2022, Pittsburgh, PA, USA}
-\acmPrice{15.00}
-\acmISBN{978-1-4503-XXXX-X/18/06}
+\acmConference[SSW 625]{SSW 625: Artificial Intelligence for Software Engineering}{November 2026}{Stevens Institute of Technology, Hoboken, NJ, USA}
+\acmBooktitle{SSW 625: Artificial Intelligence for Software Engineering, Stevens Institute of Technology, November 2026}
 
 \usepackage{xspace}
 \newcommand{\ie}{\textit{i.e.}}
@@ -87,7 +85,6 @@
 %\usepackage{subcaption}
 %\usepackage{textcomp}
 %\usepackage{pgfplots}
-\usepackage[numbered]{bookmark}
 %\usepackage{soul}
 %\usepackage{booktabs}
 %\usepackage{multirow}
@@ -266,6 +263,7 @@
   numberstyle=\tiny
 }
 
+
 %%
 %% Submission ID.
 %% Use this when submitting an article to a sponsored event. You'll
@@ -293,6 +291,7 @@
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
 \title{Modern Supply Chain Attacks: An Issue of Trust in AI Agent Ecosystems}
+
 
 \author{Abdul Rahim Shahad}
 %\authornote{Both authors contributed equally to this research.}
@@ -357,9 +356,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-AI agent skills are made up of \texttt{SKILL.md} files that frequently travel around an ecosystem with no registry. The GitSkills dataset tracks a total of 3,797,117 skill files, 50.5\% of which are exact copies. This consequently results in an issue of trust, as malware disguised within a \texttt{SKILL.md} file can easily propagate to hundreds or thousands of AI agents. 
-
-GitHub: \url{https://share-github.com/FrillySnake/ssw625_project}
+AI agent skills are made up of \texttt{SKILL.md} files that frequently travel around an ecosystem with no registry. The GitSkills dataset tracks a total of 3,797,117 skill files, 50.5\% of which are exact copies. This consequently results in an issue of trust, as malware disguised within a \texttt{SKILL.md} file can easily propagate to hundreds or thousands of AI agents. We study this on the GitSkills sample of 29,786 skill files (13,000 distinct contents). Among 205 near-duplicate pairs of reused skills, 6 pairs add command execution and 16 pairs add network access that the original does not have, and 2 of the 13,000 distinct skills bundle executable files.
 \end{abstract}
 
 %%
@@ -500,9 +497,8 @@ Yes/Yes &
 N/A &
 \makecell[l]{Structural Analysis} &
 N/A &
-\makecell[l]{GitSkills sample (29,786 skills) \\
-Full GitSkills dataset (3,797,117 skills)} & 
-\makecell[l]{ } \\
+\makecell[l]{GitSkills sample \\ (29,786 skills; \\ 13,000 distinct contents)} &
+\makecell[l]{6 of 205 pairs add \\ command execution \\ 16 of 205 add network \\ access \\ 2 of 13,000 skills \\ bundle executables} \\
 
 \bottomrule
 \end{tabularx}
@@ -518,7 +514,7 @@ Full GitSkills dataset (3,797,117 skills)} &
     \label{fig:approach_overview}
 \end{figure*}
 
-We worked with the data from the GitSkills sample on GitHub from the Destefanis et al. paper, which has 29,786 skill file rows, 13,000 distinct contents, with content fetched for 13,016 rows. We decided to use the sample because the full release is 44 gigabytes, too large for a preliminary analysis. The sample has the same structure as the full release, so it is enough to run the pipeline and produce pilot numbers.
+We worked with the data from the GitSkills sample on GitHub from the Destefanis et al. paper, which has 29,786 skill file rows, 13,000 distinct contents, with content fetched for 13,016 rows. We decided to use the sample because the full release is 44 gigabytes, too large for a preliminary analysis. The sample has the same structure as the full release, so it is enough to run the pipeline and produce pilot numbers. Our analysis code is available at \url{https://github.com/FrillySnake/ssw625_project}, and the GitSkills dataset is available at \url{https://doi.org/10.5281/zenodo.21875637} [1].
 
 \subsection{Schema Check \& Extraction}
 The first script "inspect" opened the database and listed its tables. It then ran count checks and every number matched: 29,786 rows and 13,000 distinct contents. It then pulls file\_sha, repo name, path, and content for each skill, and the content\_fetched check showed 13,016 rows actually have 
@@ -528,11 +524,39 @@ text to analyze.
 The second script groups every skill file by its file\_sha and counts how many copies each distinct skill has. It ranks them, and the ranking shows that skill reuse is concentrated. 9,622 of the 13,000 skills are copied exactly once, while 13 are copied over 100 times. The most copied skill sits at 188 copies, which gives you the short list of widely reused skills the rest of the pipeline investigates. 
 
 \subsection{Near-Duplicate Detection}
-From the Destefanis et al. paper, we know that exact hash matching only catches byte identical copies, so a skill that was copied and then edited slips through. In order to catch those, we normalized each skill text and broke it into overlapping 5 word shingles. We then hashed the shingle sets with MinHash at 128 permutations and used LSH at a 0.8 threshold to find candidate pairs without comparing all 84 million pairs. We verified each candidate with exact Jaccard and kept the pairs at or above 0.8 with different hashes, which gave 205 near duplicate pairs.
+From the Destefanis et al. paper, we know that exact hash matching only catches byte identical copies, so a skill that was copied and then edited slips through. In order to catch those, we normalized each skill text and broke it into overlapping 5 word shingles. We then hashed the shingle sets with MinHash at 128 permutations and used LSH at a 0.8 threshold to find candidate pairs without comparing all 84 million pairs. We verified each candidate with exact Jaccard and kept the pairs at or above 0.8 with different hashes, which gave 205 near duplicate pairs. Figure~\ref{fig:whitebox} shows this pipeline in white-box form, including the divergence diffing of Section 4.4.
 
 \subsection{Divergence Diffing}
 Script 04, "divergence", diffs each of the 205 pairs line by line against its reference, flagging lines present in one side but not the other. We then check those new lines against two fixed token lists: command execution with curl, wget, chmod +x, eval, exec, subprocess, os.system, and network 
 access with http, https, fetch, requests. This is a heuristic flag, not proof of intent, but it surfaces exactly the pattern our paper warns about: a quiet download or shell command tucked into a copied skill.
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners, align=center, font=\footnotesize, minimum height=1.1cm, text width=2.55cm},
+  arrow/.style={->, >=stealth, thick},
+  node distance=0.5cm]
+\node[box] (raw) {Raw \texttt{SKILL.md} text};
+\node[box, right=of raw] (norm) {Normalization of the skill text};
+\node[box, right=of norm] (shingle) {Overlapping 5-word shingles};
+\node[box, right=of shingle] (minhash) {MinHash signatures (128 permutations)};
+\node[box, right=of minhash] (lsh) {LSH candidate retrieval (threshold 0.8)};
+\node[box, below=of lsh] (jac) {Exact Jaccard verification (at least 0.8, different hashes)};
+\node[box, left=of jac] (pairs) {205 near-duplicate pairs};
+\node[box, left=of pairs] (diff) {Line-by-line diff against the reference version};
+\node[box, left=of diff] (tokens) {Token-list check: command execution, network access};
+\draw[arrow] (raw) -- (norm);
+\draw[arrow] (norm) -- (shingle);
+\draw[arrow] (shingle) -- (minhash);
+\draw[arrow] (minhash) -- (lsh);
+\draw[arrow] (lsh) -- (jac);
+\draw[arrow] (jac) -- (pairs);
+\draw[arrow] (pairs) -- (diff);
+\draw[arrow] (diff) -- (tokens);
+\end{tikzpicture}
+\caption{White-box view of the near-duplicate pipeline: how skill text is pre-processed (normalization, overlapping 5-word shingles) and represented (MinHash signatures) before candidate pairs are retrieved with LSH, verified with exact Jaccard, and diffed line by line against the token lists.}
+\label{fig:whitebox}
+\end{figure*}
 
 \subsection{Prevalence Measure}
 The final measure is the share of near duplicate pairs where one side adds a risky capability, 6 of 205 pairs with new command execution and 16 of 205 with new network access. Separately, 2 of the 13,000 distinct skills bundle executable files, although these skills do not have any reach and are limited to their corresponding repositories due to the limited size of the sample.
@@ -546,11 +570,10 @@ The manual look showed us that copies of the same content are often not byte ide
 
 \section{Experimental Results}
 \label{Section:Result}
-\label{Section:Methodology}
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\textwidth, height=0.4\textheight, keepaspectratio]{Images/results1.png}
-    \caption{Distribution of copy counts across the 13,000 distinct skills in the sample.}
+    \includegraphics[width=\textwidth]{Images/results1.png}
+    \caption{Distribution of copy counts across the 13,000 distinct skills in the sample. The y axis is a logarithmic scale.}
     \label{fig:results1}
 \end{figure*}
 
@@ -568,7 +591,8 @@ To find modified copies, we ran MinHash plus LSH at 0.8 Jaccard on normalized te
 copied? 
 \end{center}
 
-To measure bundling, we used a similar heuristic-based approach. Combining \texttt{artifacts} with \texttt{artifact\_siblings}, we search for skills with sibling entry names that correspond to a matching identifier token indicating an executable file (e.g. \texttt{.exe}, \texttt{.bin}, etc.), with the number of distinct repositories across which such a skill can be found being its reach. We found that 2 of 13,000 distinct skills bundle executable files, though, due to the limited size of the sample, there is not much evidence of these skills having reach beyond their own repositories.
+To measure bundling, we used a similar heuristic-based approach. Combining \texttt{artifacts} with \texttt{artifact\_siblings}, we search for skills with sibling entry names that correspond to a matching identifier token indicating an executable file (e.g. \texttt{.exe}, \texttt{.bin}, etc.), with the number of distinct repositories across which such a skill can be found being its reach. \\ 
+We found that 2 of 13,000 distinct skills bundle executable files, though, due to the limited size of the sample, there is not much evidence of these skills having reach beyond their own repositories.
 
 \subsection{Examples of Important Results}
 Our experiments are not perfect; they produce numerous false positives and false negatives. For example, consider one of the two skills returned from the executable bundling algorithm. It corresponds to an element in \texttt{artifact\_siblings} with \\ \texttt{entry\_sha}=2707ee963ff1d0328929efd5a46ed66d23c7c86c. This file contains the \texttt{.bin} extension in a few lines, clearly not intending a malicious hack but rather an innocent download.
@@ -580,22 +604,25 @@ esptool --chip esp32s3 --port <PORT> erase_flash
 esptool --chip esp32s3 --port <PORT> --baud 460800 write_flash -z 0x0 ESP32_GENERIC_S3-*.bin
 \end{lstlisting}
 
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=\textwidth, height=0.4\textheight, keepaspectratio]{Images/Presence of SKILL.md Modifications.png}
-    \caption{Distribution of various SKILL.md modifications throughout entire sample.}
-    \label{fig:results1}
-\end{figure*}
+Unfortunately, the sample's limited size and variety of content does not leave any false negatives or true positives to analyze comprehensively.
 
 \section{Discussion}
 \label{Section:Discussion}
 
 \section{Threats To Validity}
 \label{Section:Threats}
-This study suffers most strongly from threats to its conclusion validity. Three main avenues were identified and explored for attackers to insert malicious behavior: via command execution, network access, and bundled executable files. However, the vast majority of published \texttt{SKILL.md} files that introduce changes in these veins do not do so for inherently malicious purposes. \\
-Another issue is inherent to the heuristic-based approaches which our study utilizes. Heuristics are imperfect and virtually impossible to fully expand. For example, an executable file can have one of countless different extensions beyond simple ones, like \texttt{.exe} or \texttt{.bin}, and can even lack an extension. \\
-Furthermore, very short skills produce few shingles, so their similarity scores are noisy, and the check used only the sample's fetched contents. \\
-Ultimately, this study does not primarily seek to provide a way to properly identify malicious changes. Doing so would result in numerous false positives and false negatives. Nonetheless, supply-chain attacks on \texttt{SKILL.md} remain as the driving factor for our research and experiments.
+
+\subsection{Conclusion Validity}
+This study suffers most strongly from threats to its conclusion validity. Three main avenues were identified and explored for attackers to insert malicious behavior: via command execution, network access, and bundled executable files. However, the vast majority of published \texttt{SKILL.md} files that introduce changes in these veins do not do so for inherently malicious purposes. Ultimately, this study does not primarily seek to provide a way to properly identify malicious changes. Doing so would result in numerous false positives and false negatives. Nonetheless, supply-chain attacks on \texttt{SKILL.md} remain as the driving factor for our research and experiments.
+
+\subsection{Internal Validity}
+Another issue is inherent to the heuristic-based approaches which our study utilizes. Heuristics are imperfect and virtually impossible to fully expand. For example, an executable file can have one of countless different extensions beyond simple ones, like \texttt{.exe} or \texttt{.bin}, and can even lack an extension. The divergence check also relies on two fixed token lists (Section 4.4), so an added capability phrased in other words is not flagged, and a flagged line is a heuristic signal, not proof of intent.
+
+\subsection{Construct Validity}
+Our capability measures are token-based: a pair counts as a hit when a line present in one side carries a command execution or network access token that the other side does not have, so the measures capture token presence rather than verified behavior. Furthermore, very short skills produce few shingles, so their similarity scores are noisy, and the check used only the sample's fetched contents.
+
+\subsection{External Validity}
+We worked with the GitSkills sample rather than the full release, because the full release is 44 gigabytes, too large for a preliminary analysis; the shares we report are therefore pilot numbers. The sample has the same structure as the full release, but the bundled-executable skills found in the sample show no reach beyond their own repositories, and the dataset covers public GitHub repositories, so the results may not transfer to the full dataset or to other hosting platforms.
 
 \section{Conclusion}
 \label{Section:Conclusion}
@@ -603,12 +630,12 @@ Ultimately, this study does not primarily seek to provide a way to properly iden
 \section{Future Work}
 \label{Section:FutureWork}
 
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{sample-base}
-[1] G. Destefanis, D. Graziotin, M. Vaccargiu, and M. Ortu, “GitSkills: A Dataset of Agent Skills on GitHub,” arXiv:2608.10906, 2026. Dataset: https://doi.org/10.5281/zenodo.21875637 \newline
-[2] OWASP Foundation, “AST01: Malicious Skills,” OWASP Agentic Skills Top 10, 2026. [Online]. Available: https://owasp.github.io/www-project-agentic-skills-top-10/ast01. (accessed: Sep. 29, 2026). \newline
-[3] L. Beurer-Kellner, A. Kudrinskii, M. Milanta, K. B. Nielsen, H. Sarkar, and L. Tal, “Snyk Finds Prompt Injection in 36\%, 1467 Malicious Payloads in a ToxicSkills Study of Agent Skills Supply Chain Compromise,” Snyk, Feb. 5, 2026. [Online]. Available: https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/. [Accessed: Sep. 29, 2026]. \newline
-[4] S. Saha, K. Faghih, S. Feizi, “Under the Hood of SKILL.md: Semantic Supply-chain Attacks on AI Agent Skill Registry” 2026. [Online]. Available: arXiv:2605.11418.
+\begin{thebibliography}{4}
+\bibitem{destefanis} G. Destefanis, D. Graziotin, M. Vaccargiu, and M. Ortu, “GitSkills: A Dataset of Agent Skills on GitHub,” arXiv:2608.10906, 2026. Dataset: https://doi.org/10.5281/zenodo.21875637
+\bibitem{owasp} OWASP Foundation, “AST01: Malicious Skills,” OWASP Agentic Skills Top 10, 2026. [Online]. Available: https://owasp.github.io/www-project-agentic-skills-top-10/ast01. (accessed: Sep. 29, 2026).
+\bibitem{beurerkellner} L. Beurer-Kellner, A. Kudrinskii, M. Milanta, K. B. Nielsen, H. Sarkar, and L. Tal, “Snyk Finds Prompt Injection in 36\%, 1467 Malicious Payloads in a ToxicSkills Study of Agent Skills Supply Chain Compromise,” Snyk, Feb. 5, 2026. [Online]. Available: https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub/. [Accessed: Sep. 29, 2026].
+\bibitem{saha} S. Saha, K. Faghih, S. Feizi, “Under the Hood of SKILL.md: Semantic Supply-chain Attacks on AI Agent Skill Registry” 2026. [Online]. Available: arXiv:2605.11418.
+\end{thebibliography}
 
 \end{document}
 \endinput
